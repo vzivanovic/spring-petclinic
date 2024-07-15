@@ -93,10 +93,6 @@ checkFormatAotTest.enabled = false
 formatAot.enabled = false
 formatAotTest.enabled = false
 
-bootJar {
-  archiveBaseName.set('springpetclinic')
-  archiveVersion.set('3.3.0')
-}
 
 task buildAndShowTestResults {
   dependsOn build
