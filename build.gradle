@@ -6,6 +6,7 @@ plugins {
   id 'org.cyclonedx.bom' version '1.8.2'
   id 'io.spring.javaformat' version '0.0.41'
   id "io.spring.nohttp" version "0.0.11"
+  id "pl.allegro.tech.build.axion-release" version "1.14.0"
 }
 
 apply plugin: 'java'
@@ -15,7 +16,15 @@ apply plugin: 'io.spring.javaformat'
 gradle.startParameter.excludedTaskNames += [ "checkFormatAot", "checkFormatAotTest" ]
 
 group = 'org.springframework.samples'
-version = '3.3.0'
+
+scmVersion {
+  repository {
+    directory = project.rootDir
+  }
+  tag {
+    prefix = 'vz'
+  }
+}
 
 java {
   sourceCompatibility = JavaVersion.VERSION_17
@@ -81,3 +90,34 @@ checkFormatAotTest.enabled = false
 
 formatAot.enabled = false
 formatAotTest.enabled = false
+
+bootJar {
+  archiveBaseName.set('springpetclinic')
+  archiveVersion.set('3.3.0')
+}
+
+task buildAndShowTestResults {
+  dependsOn build
+
+  doLast {
+    def reportDir = file("${buildDir}/reports/tests/test/index.html")
+    if (reportDir.exists()) {
+      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        exec {
+          commandLine 'cmd', '/c', "start", reportDir
+        }
+      } else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        exec {
+          commandLine 'open', reportDir
+        }
+      } else if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
+        exec {
+          commandLine 'xdg-open', reportDir
+        }
+      }
+    } else {
+      println "Test report not found: ${reportDir}"
+    }
+  }
+}
+
